@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -597,7 +596,7 @@ func (bitvavo Bitvavo) sendPublic(endpoint string) []byte {
 		return []byte("caught error")
 	} else {
 		defer resp.Body.Close()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			errorToConsole("Caught error " + err.Error())
 			return []byte("caught error")
@@ -839,10 +838,10 @@ func (bitvavo Bitvavo) Ticker24h(options map[string]string) ([]Ticker24h, error)
 		var t Ticker24h
 		err = json.Unmarshal(jsonResponse, &t)
 		if err != nil {
-			return []Ticker24h{Ticker24h{}}, MyError{Err: err}
+			return []Ticker24h{}, MyError{Err: err}
 		}
 		if t.Market == "" {
-			return []Ticker24h{Ticker24h{}}, handleAPIError(jsonResponse)
+			return []Ticker24h{}, handleAPIError(jsonResponse)
 		}
 		return []Ticker24h{t}, nil
 	}
@@ -927,7 +926,7 @@ func (bitvavo Bitvavo) GetOrders(market string, options map[string]string) ([]Or
 	t := make([]Order, 0)
 	err := json.Unmarshal(jsonResponse, &t)
 	if err != nil {
-		return []Order{Order{}}, handleAPIError(jsonResponse)
+		return []Order{}, handleAPIError(jsonResponse)
 	}
 	return t, nil
 }
@@ -939,7 +938,7 @@ func (bitvavo Bitvavo) CancelOrders(options map[string]string) ([]CancelOrder, e
 	t := make([]CancelOrder, 0)
 	err := json.Unmarshal(jsonResponse, &t)
 	if err != nil {
-		return []CancelOrder{CancelOrder{}}, handleAPIError(jsonResponse)
+		return []CancelOrder{}, handleAPIError(jsonResponse)
 	}
 	return t, nil
 }
@@ -951,7 +950,7 @@ func (bitvavo Bitvavo) OrdersOpen(options map[string]string) ([]Order, error) {
 	t := make([]Order, 0)
 	err := json.Unmarshal(jsonResponse, &t)
 	if err != nil {
-		return []Order{Order{}}, handleAPIError(jsonResponse)
+		return []Order{}, handleAPIError(jsonResponse)
 	}
 	return t, nil
 }
@@ -964,7 +963,7 @@ func (bitvavo Bitvavo) Trades(market string, options map[string]string) ([]Trade
 	t := make([]Trades, 0)
 	err := json.Unmarshal(jsonResponse, &t)
 	if err != nil {
-		return []Trades{Trades{}}, handleAPIError(jsonResponse)
+		return []Trades{}, handleAPIError(jsonResponse)
 	}
 	return t, nil
 }
@@ -986,7 +985,7 @@ func (bitvavo Bitvavo) Balance(options map[string]string) ([]Balance, error) {
 	t := make([]Balance, 0)
 	err := json.Unmarshal(jsonResponse, &t)
 	if err != nil {
-		return []Balance{Balance{}}, handleAPIError(jsonResponse)
+		return []Balance{}, handleAPIError(jsonResponse)
 	}
 	return t, nil
 }
@@ -1030,7 +1029,7 @@ func (bitvavo Bitvavo) DepositHistory(options map[string]string) ([]History, err
 	t := make([]History, 0)
 	err := json.Unmarshal(jsonResponse, &t)
 	if err != nil {
-		return []History{History{}}, handleAPIError(jsonResponse)
+		return []History{}, handleAPIError(jsonResponse)
 	}
 	return t, nil
 }
@@ -1042,7 +1041,7 @@ func (bitvavo Bitvavo) WithdrawalHistory(options map[string]string) ([]History, 
 	t := make([]History, 0)
 	err := json.Unmarshal(jsonResponse, &t)
 	if err != nil {
-		return []History{History{}}, handleAPIError(jsonResponse)
+		return []History{}, handleAPIError(jsonResponse)
 	}
 	return t, nil
 }
