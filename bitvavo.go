@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -623,6 +624,11 @@ func (bitvavo Bitvavo) sendPrivate(endpoint string, postfix string, body map[str
 		byteBody = nil
 	}
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(byteBody))
+	if err != nil {
+		errorToConsole("We caught error " + err.Error())
+		return nil
+	}
+
 	req.Header.Set("bitvavo-access-key", bitvavo.ApiKey)
 	req.Header.Set("bitvavo-access-signature", sig)
 	req.Header.Set("bitvavo-access-timestamp", timeString)
@@ -633,12 +639,15 @@ func (bitvavo Bitvavo) sendPrivate(endpoint string, postfix string, body map[str
 		errorToConsole("We caught an error " + err.Error())
 		return nil
 	}
+
 	defer resp.Body.Close()
-	respBody, err := ioutil.ReadAll(resp.Body)
+
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		errorToConsole("Caught error " + err.Error())
 		return nil
 	}
+
 	updateRateLimit(resp.Header)
 	return respBody
 }
@@ -790,10 +799,10 @@ func (bitvavo Bitvavo) TickerPrice(options map[string]string) ([]TickerPrice, er
 		var t TickerPrice
 		err = json.Unmarshal(jsonResponse, &t)
 		if err != nil {
-			return []TickerPrice{TickerPrice{}}, MyError{Err: err}
+			return []TickerPrice{}, MyError{Err: err}
 		}
 		if t.Market == "" {
-			return []TickerPrice{TickerPrice{}}, handleAPIError(jsonResponse)
+			return []TickerPrice{}, handleAPIError(jsonResponse)
 		}
 		return []TickerPrice{t}, nil
 	}
@@ -810,10 +819,10 @@ func (bitvavo Bitvavo) TickerBook(options map[string]string) ([]TickerBook, erro
 		var t TickerBook
 		err = json.Unmarshal(jsonResponse, &t)
 		if err != nil {
-			return []TickerBook{TickerBook{}}, MyError{Err: err}
+			return []TickerBook{}, MyError{Err: err}
 		}
 		if t.Market == "" {
-			return []TickerBook{TickerBook{}}, handleAPIError(jsonResponse)
+			return []TickerBook{}, handleAPIError(jsonResponse)
 		}
 		return []TickerBook{t}, nil
 	}
